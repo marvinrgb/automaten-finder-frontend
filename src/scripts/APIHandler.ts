@@ -24,6 +24,18 @@ export default class APIHandler {
     }
   }
 
+  async getPositionsByShop(shop_id: number) {
+    let response:AxiosResponse | undefined = undefined;
+    let path:string = `/api/documents/positionsbyshop?shop_id=${shop_id}`;
+    try {
+      response = await axios.get(URL + path, this.getAxiosOptions());
+      if (!response) throw responseEmpty;
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getNearbyPositions(product_id: string, coordinates: {latitude:number,longitude:number}, radius?: number) {
     let response:AxiosResponse | undefined = undefined;
     let path:string = `/api/nearby/positions?product_id=${product_id}&longitude=${coordinates.longitude}&latitude=${coordinates.latitude}`;
