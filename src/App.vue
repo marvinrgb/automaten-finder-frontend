@@ -1,16 +1,10 @@
 <script setup lang="ts">
+import MapView from './components/MapView.vue';
+import ShopList from './components/ShopList.vue';
 import { Ref, onMounted, ref } from 'vue';
 import APIHandler from './scripts/APIHandler';
-import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 const api = APIHandler.getInstance();
 
-/* get all products */
-const shops:Ref<Array<any>> = ref([]);
-async function getShops() {
-  shops.value = await api.getDocuments('shop');
-}
-getShops();
 
 /* get all products with filterOptions, can use any property to filter and can use multiple */
 // console.log(await api.getDocuments('product', {displayName: 'Aprikose'}))
@@ -54,28 +48,8 @@ const showFiltertool:Ref<boolean> = ref(false);
 
 const currentPage:Ref<'shopslist'|'shopsmap'|'productslist'> = ref('shopsmap');
 
-const mapData:Ref<{zoom:number,latitude:number,longitude:number}> = ref({
-  latitude: 8.221694278926318,
-  longitude: 50.65461526749412,
-  zoom: 12
-})
 
 const navButtons:Ref<Array<{img:string,link:'shopslist'|'shopsmap'|'productslist'}>> = ref([{img:'/src/assets/list.png',link:'shopslist'}, {img:'/src/assets/map.png',link:'shopsmap'}, {img:'/src/assets/category.png',link:'productslist'}])
-
-const selectedShopData:Ref<{shop:{name:string,distance:number,longitude:number,latitude:number},positions:Array<any>,}> = ref({shop:{name:"", distance: 0, longitude: 0, latitude: 0}, positions:[]});
-async function getShopPositions(id:number) {
-  selectedShopData.value.positions = await api.getPositionsByShop(id);
-}
-
-async function selectShopOnMap(id: number) {
-  await getShopPositions(id);
-  selectedShopData.value.shop = shops.value.find((shop) => shop.id == id);
-  console.log(selectedShopData.value);
-}
-
-function openGeoApp() {
-  // open(`geo:${selectedShopData.value.shop.longitude},${selectedShopData.value.shop.latitude}`);
-}
 
 </script>
 
@@ -102,54 +76,8 @@ function openGeoApp() {
           </div>
         </div>
       </div>
-      <div v-if="currentPage == 'shopslist'" class="mt-4 row"> <!-- shops list -->
-        <div class="container" >
-          <div class="custom-bg-darkly py-2 px-2 row mx-auto mb-4 rounded" v-for="shop in shops">
-            <div class="col-9 overflow-x-hidden custom-font fs-3">{{ shop.name }}</div>
-            <div class="col-3 d-flex">
-              <img class="my-auto custom-ar" width="50%"  src="./assets/pin_drop.png" />
-              <div class="my-auto text-nowrap" >3.4 KM</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row pt-4" style="height: 30vh;" v-if="currentPage == 'shopsmap'">
-        <l-map class="rounded" ref="map" v-model:zoom="mapData.zoom" :center="[mapData.longitude, mapData.latitude]" :use-global-leaflet="false">
-          <l-tile-layer 
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            layer-type="base"
-            name="OpenStreetMap"
-          ></l-tile-layer>
-
-          <l-marker @click="selectShopOnMap(shop.id)" v-for="shop in shops" :lat-lng="[shop.longitude, shop.latitude]">
-            <l-popup class="pointer">{{ shop.name }}</l-popup>
-          </l-marker>
-        </l-map>
-      </div>
-      <div v-if="currentPage == 'shopsmap' && selectedShopData.shop.name != ''" class="row">
-        <div class="col-12 text-center fs-1 my-3">{{ selectedShopData.shop.name }}</div>
-        <div class="col-1"></div>
-        <div class="col-10 d-flex align-items-center fs-5">
-          <img width="16%" class="me-2 img-fluid" src="./assets/route.png" />
-          <div class="text-nowrap me-4">{{ selectedShopData.shop.distance }} km</div>
-          <button @click="openGeoApp" type="button" class="btn btn-secondary">Navigation Starten</button>
-        </div>
-        <div class="col-1"></div>
-        <div class="col-12 container mb-2 mt-4">
-          <div class="row fs-5 fw-bold">
-            <div class="col-6">Product</div>
-            <div class="col-4"></div>
-            <div class="col-2">Preis</div>
-          </div>
-        </div>
-        <div class="col-12 container">
-          <div class="row fs-5" v-for="position in selectedShopData.positions">
-            <div class="col-6">{{ position.product.displayName }}</div>
-            <div class="col-4"></div>
-            <div class="col-2">{{ position.price }}€</div>
-          </div>
-        </div>
-      </div>
+      <ShopList v-if="currentPage == 'shopslist'" />
+      <MapView v-if="currentPage == 'shopsmap'" />
     </div>
     <div class="fixed-bottom container custom-top-border">
       <div class="row">
@@ -175,18 +103,9 @@ input:focus {
 .custom-top-border {
   border-top: 1px solid rgb(127, 127, 127);
 }
-.custom-ar {
-  aspect-ratio: 1/1.2;
-}
 @font-face {
     font-family: patricksc;
     src: url('./assets/fonts/PatrickHandSC-Regular.ttf');
-}
-.custom-font {
-  font-family: patricksc;
-}
-.custom-bg-darkly {
-  background-color: #4A4242;
 }
 .custom-tag-on {
   background-color: #D9D9D9;
