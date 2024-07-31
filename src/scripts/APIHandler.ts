@@ -24,6 +24,18 @@ export default class APIHandler {
     }
   }
 
+  async getProductsWithShops(query_string: string) {
+    let response:AxiosResponse | undefined = undefined;
+    let path:string = `/api/nearby/itemswithshops/?query_string=${query_string}`;
+    try {
+      response = await axios.get(URL + path, this.getAxiosOptions());
+      if (!response) throw responseEmpty;
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getPositionsByShop(shop_id: number) {
     let response:AxiosResponse | undefined = undefined;
     let path:string = `/api/documents/positionsbyshop?shop_id=${shop_id}`;

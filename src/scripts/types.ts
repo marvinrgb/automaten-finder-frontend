@@ -1,4 +1,4 @@
-export type databaseType = 'product' | 'shop' | 'position';
+export type databaseType = 'product' | 'shop' | 'position' | 'tag';
 
 export type Shop = {
   _type?: 'shop',
