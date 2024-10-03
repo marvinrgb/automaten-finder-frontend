@@ -5,6 +5,9 @@
 .custom-bg-darkly {
   background-color: #4A4242;
 }
+.bg-brown-grey {
+  background-color: #635C5C;
+}
 @font-face {
     font-family: patricksc;
     src: url('./assets/fonts/PatrickHandSC-Regular.ttf');
@@ -12,4 +15,17 @@
 
 html, body {
   background-color: #212529;
+}
+
+.custom-font {
+  font-family: patricksc;
+}
+
+a:visited {
+  color: white;
+  text-decoration: none;
+}
+a:link {
+  color: white;
+  text-decoration: none;
 }

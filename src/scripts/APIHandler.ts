@@ -24,6 +24,18 @@ export default class APIHandler {
     }
   }
 
+  private radius:number = 10000;
+  private coordinates:{latitude:number,longitude:number} = {latitude:0,longitude:0};
+
+  setCoordinates(latitude: number, longitude: number) {
+    this.coordinates.latitude = latitude;
+    this.coordinates.longitude = longitude;
+  }
+
+  setRadius(radius: number) { //comes in km
+    this.radius = radius * 1000;
+  }
+
   async getProductsWithShops(query_string: string) {
     let response:AxiosResponse | undefined = undefined;
     let path:string = `/api/nearby/itemswithshops/?query_string=${query_string}`;
@@ -48,12 +60,10 @@ export default class APIHandler {
     }
   }
 
-  async getNearbyPositions(product_id: string, coordinates: {latitude:number,longitude:number}, radius?: number) {
+  async getNearbyPositions(product_id: string, coordinates: {latitude:number,longitude:number}, radius: number = 10000) {
     let response:AxiosResponse | undefined = undefined;
-    let path:string = `/api/nearby/positions?product_id=${product_id}&longitude=${coordinates.longitude}&latitude=${coordinates.latitude}`;
-    if (radius) {
-      path += `&radius=${radius}`;
-    }
+    let path:string = `/api/nearby/positions?product_id=${product_id}&longitude=${this.coordinates.longitude}&latitude=${this.coordinates.latitude}&radius=${this.radius}`;
+
     try {
       response = await axios.get(URL + path, this.getAxiosOptions());
       if (!response) throw responseEmpty;
@@ -63,11 +73,11 @@ export default class APIHandler {
     }
   }
 
-  async getNearbyShops(coordinates: {latitude:number,longitude:number}, radius?: number) {
+  async getNearbyShops(coordinates: {latitude:number,longitude:number}, radius: number = 10000, text_query?: string) {
     let response:AxiosResponse | undefined = undefined;
-    let path:string = `/api/nearby/shops?longitude=${coordinates.longitude}&latitude=${coordinates.latitude}`;
-    if (radius) {
-      path += `&radius=${radius}`;
+    let path:string = `/api/nearby/shops?longitude=${this.coordinates.longitude}&latitude=${this.coordinates.latitude}&radius=${this.radius}`;
+    if (text_query) {
+      path += `&query_text=${text_query}`;
     }
     try {
       response = await axios.get(URL + path, this.getAxiosOptions());
